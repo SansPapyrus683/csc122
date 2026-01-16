@@ -1,6 +1,5 @@
-from collections import Counter, defaultdict
+from collections import defaultdict
 from statistics import mode
-import pickle
 
 chars = "ATCG"
 char_to_ind = {c: i for i, c in enumerate(chars)}
