@@ -8,6 +8,12 @@
 
 using namespace std;
 
+const string REF = "1a/project1a_reference_genome.fasta";
+const string READS = "1a/project1a_with_error_paired_reads.fasta";
+
+// const string REF = "1b/project1b-u_reference_genome.fasta";
+// const string READS = "1b/project1b-u_with_error_paired_reads.fasta";
+
 vector<pair<string, int>> kmers(const string& s, int k = 20) {
     vector<pair<string, int>> ret;
     for (int i = 0; i + k <= (int)s.size(); i++) {
@@ -65,10 +71,7 @@ tuple<int, string, string> best_match(const string& a, const string& b) {
 }
 
 int main() {
-    string ref = "project1b-u_reference_genome.fasta";
-    string reads = "project1b-u_with_error_paired_reads.fasta";
-
-    ifstream gf(ref);
+    ifstream gf(REF);
     string genome, line;
     getline(gf, line);
     while (getline(gf, line)) { genome += line; }
@@ -78,7 +81,7 @@ int main() {
     for (auto& [m, ind] : kmers(genome)) { mins[m].push_back(ind); }
 
     vector<string> queries;
-    ifstream rf(reads);
+    ifstream rf(READS);
     int v = 0;
     while (getline(rf, line)) {
         if (v % 2 == 1) { queries.push_back(line); }
@@ -147,9 +150,7 @@ int main() {
     sort(sorted.rbegin(), sorted.rend());
 
     for (const auto& [occs, info] : sorted) {
-        if (occs < 4) {
-            break;
-        }
+        if (occs < 4) { break; }
         if (info[0] == "S") {
             int ind = stoi(info[1]);
             printf(">%s%i %c %s\n", info[0].c_str(), ind, genome[ind], info[2].c_str());
