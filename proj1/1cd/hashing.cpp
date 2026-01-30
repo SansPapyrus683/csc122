@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const std::map<char, int> CHARS{{'A', 0}, {'T', 1}, {'C', 2}, {'G', 3}};
+const std::map<char, int> CHARS{{'A', 1}, {'T', 2}, {'C', 3}, {'G', 4}};
 
 int kmer_len;
 long long mod;
@@ -20,7 +20,7 @@ void hashing_init(int kmer_len_, int hash_funcs, long long mod_) {
 
     bases.clear();
     for (int i = 0; i < hash_funcs; i++) {
-        bases.push_back(4 + i);
+        bases.push_back(5 + i);
     }
 
     pows = vector<long long>(bases.size(), 1);
