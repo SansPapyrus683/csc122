@@ -4,15 +4,19 @@
 #include <map>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <vector>
 
 using namespace std;
 
-const string REF = "1a/project1a_reference_genome.fasta";
-const string READS = "1a/project1a_with_error_paired_reads.fasta";
+// const string REF = "1a/project1a_reference_genome.fasta";
+// const string READS = "1a/project1a_with_error_paired_reads.fasta";
 
-// const string REF = "1b/project1b-u_reference_genome.fasta";
-// const string READS = "1b/project1b-u_with_error_paired_reads.fasta";
+const string REF = "1b/project1b-u_reference_genome.fasta";
+const string READS = "1b/project1b-u_with_error_paired_reads.fasta";
+
+constexpr int MATCH_THRESH = 3;
+constexpr int VOTE_THRESH = 4;
 
 vector<pair<string, int>> kmers(const string& s, int k = 20) {
     vector<pair<string, int>> ret;
@@ -27,9 +31,7 @@ tuple<int, string, string> best_match(const string& a, const string& b) {
 
     vector<vector<pair<int, pair<int, int>>>> dp(
         n + 1, vector<pair<int, pair<int, int>>>(m + 1, {INT32_MAX, {-1, -1}}));
-
     dp[0][0] = {0, {-1, -1}};
-
     for (int i = 0; i <= n; i++) {
         for (int j = 0; j <= m; j++) {
             if (i > 0) {
@@ -66,7 +68,6 @@ tuple<int, string, string> best_match(const string& a, const string& b) {
 
     reverse(ra.begin(), ra.end());
     reverse(rb.begin(), rb.end());
-
     return {dp[n][m].first, ra, rb};
 }
 
@@ -77,7 +78,7 @@ int main() {
     while (getline(gf, line)) { genome += line; }
     gf.close();
 
-    map<string, vector<int>> mins;
+    unordered_map<string, vector<int>> mins;
     for (auto& [m, ind] : kmers(genome)) { mins[m].push_back(ind); }
 
     vector<string> queries;
@@ -90,8 +91,7 @@ int main() {
     rf.close();
 
     map<vector<string>, int> changes;
-    for (int qi = 0; qi < (int)queries.size(); qi++) {
-        const string& q = queries[qi];
+    for (const string& q : queries) {
         map<int, int> offsets;
 
         for (auto& [m, ind] : kmers(q)) {
@@ -126,8 +126,7 @@ int main() {
 
             if (get<0>(test) < get<0>(best)) { best = test; }
         }
-
-        if (get<0>(best) >= 3) { continue; }
+        if (get<0>(best) > MATCH_THRESH) { continue; }
 
         int ref_at = best_ind;
         const string& a = get<1>(best);
@@ -150,7 +149,7 @@ int main() {
     sort(sorted.rbegin(), sorted.rend());
 
     for (const auto& [occs, info] : sorted) {
-        if (occs < 4) { break; }
+        if (occs < VOTE_THRESH) { break; }
         if (info[0] == "S") {
             int ind = stoi(info[1]);
             printf(">%s%i %c %s\n", info[0].c_str(), ind, genome[ind], info[2].c_str());
