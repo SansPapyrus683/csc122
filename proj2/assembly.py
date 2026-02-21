@@ -18,7 +18,6 @@ def common_amt(s1: str, s2: str) -> int:
 
 
 header_fmt = re.compile(r">read_(\d+)")
-reads = "data/project2_sample2_reads.fasta"
 reads = "data/project2b_reads.fasta"
 
 read_num = []
